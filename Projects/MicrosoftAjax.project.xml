@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- This project documents the Atlas framework itself. -->
+<project xmlns:scriptdoc="http://www.w3.org/2001/XMLSchema-instance"
+  scriptdoc:noNamespaceSchemaLocation="ScriptDocProject.xsd">
+  <scripts>
+    <!-- <script assembly="FullyQualifiedAssemblyName" name="ResourceName" /> -->
+    <!-- <script path="path/to/the/script.js" /> -->
+    <script name="MicrosoftAjax.js"/>
+    <script name="MicrosoftAjaxWebForms.js"/>
+  </scripts>
+  <namespaces>
+    <namespace></namespace>
+    <namespace>Sys</namespace>
+    <namespace>Sys.Net</namespace>
+    <namespace>Sys.Serialization</namespace>
+    <namespace>Sys.Services</namespace>
+    <namespace>Sys.UI</namespace>
+    <namespace>Sys.WebForms</namespace>
+  </namespaces>
+  <singletons>
+    <singleton>Sys.Application</singleton>
+    <singleton>Sys.Debug</singleton>
+    <singleton>Sys.Net.WebRequestManager</singleton>
+    <singleton>Sys.Services.AuthenticationService</singleton>
+    <singleton>Sys.Services.ProfileService</singleton>
+    <singleton>Sys.Services.RoleService</singleton>
+  </singletons>
+</project>
