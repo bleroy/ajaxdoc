@@ -185,15 +185,15 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head runat="server" id="head">
-    <title>ScriptDoc - JavaScript documentation generator</title>
+    <title>AjaxDoc - JavaScript documentation generator</title>
     <% if (Request.RequestType == "GET") { %>
     <script type="text/javascript">
         function pageLoad() {
             var namespaces = <%= namespaces %>;
             var singletons = <%= singletons %>;
-            var doc = Bleroy.ScriptDoc.getReflectionXml("<%= projectName %>", namespaces, singletons);
+            var doc = Bleroy.AjaxDoc.getReflectionXml("<%= projectName %>", namespaces, singletons);
             document.getElementById("Reflection").value = doc;
-            doc = Bleroy.ScriptDoc.getDocumentationXml(namespaces, singletons);
+            doc = Bleroy.AjaxDoc.getDocumentationXml(namespaces, singletons);
             document.getElementById("XmlDoc").value = doc;
             document.forms[0].submit();
         }
@@ -208,7 +208,7 @@
             </Scripts>
         </asp:ScriptManager>
         <div>
-            <h1>ScriptDoc - JavaScript documentation generator.</h1>
+            <h1>AjaxDoc - JavaScript documentation generator.</h1>
             <asp:TextBox runat="server" Columns="120" Rows="24" id="XmlDoc" TextMode="MultiLine"/>
             <asp:TextBox runat="server" Columns="120" Rows="24" id="Reflection" TextMode="MultiLine"/>
         </div>
