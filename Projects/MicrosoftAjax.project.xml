@@ -23,6 +23,5 @@
     <singleton>Sys.Net.WebRequestManager</singleton>
     <singleton>Sys.Services.AuthenticationService</singleton>
     <singleton>Sys.Services.ProfileService</singleton>
-    <singleton>Sys.Services.RoleService</singleton>
   </singletons>
 </project>
