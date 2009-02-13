@@ -1,4 +1,4 @@
-// AjaxDoc (c) 2006-2007 Bertrand Le Roy
+// AjaxDoc (c) 2006-2009 Bertrand Le Roy
 /// <reference name="MicrosoftAjax.debug.js"/>
 
 Type.registerNamespace("Bleroy");
@@ -243,7 +243,7 @@ Bleroy.AjaxDoc.getReflectionXml = function Bleroy$AjaxDoc$getReflectionXml(proje
                 "<apis>"],
         genealogy = {},
         innerDoc;
-    for(var i = 0, l = namespaces.length; i < l; i++) {
+    for (var i = 0, l = namespaces.length; i < l; i++) {
         var namespaceName = namespaces[i];
         if (namespaceName === "") continue;
 
@@ -252,30 +252,30 @@ Bleroy.AjaxDoc.getReflectionXml = function Bleroy$AjaxDoc$getReflectionXml(proje
 
         for (var className in jsnamespace) {
             if (className.charAt(0) === '_') continue;
-            
+
             var type = jsnamespace[className];
-            
+
             if ((type !== null) && Type.isClass(type)) {
                 classPath = namespaceName + "." + className;
                 if (!genealogy[classPath]) {
-                    genealogy[classPath] = {type: type, ancestors: [], descendants: []};
+                    genealogy[classPath] = { type: type, ancestors: [], descendants: [] };
                 }
                 for (var ancestor = type.getBaseType(); ancestor; ancestor = ancestor.getBaseType()) {
                     genealogy[classPath].ancestors.push(ancestor);
                     var ancestorPath = ancestor.getName(),
                         ancestorInfo = genealogy[ancestorPath];
                     if (!ancestorInfo) {
-                        ancestorInfo = genealogy[ancestorPath] = {type: type, ancestors: [], descendants: []};
+                        ancestorInfo = genealogy[ancestorPath] = { type: type, ancestors: [], descendants: [] };
                     }
                     ancestorInfo.descendants.push(type);
                 }
             }
         }
     }
-    
+
     // Second pass to generate the documentation
     l = namespaces.length;
-    for(i = 0; i < l; i++) {
+    for (i = 0; i < l; i++) {
         namespaceName = namespaces[i];
         innerDoc = [];
         if (namespaceName === "") {
@@ -293,7 +293,7 @@ Bleroy.AjaxDoc.getReflectionXml = function Bleroy$AjaxDoc$getReflectionXml(proje
                 String: String
             };
             // Enumerate namespaces for top-level namespaces
-            for(var j = 0; j < l; j++) {
+            for (var j = 0; j < l; j++) {
                 var nsname = namespaces[j];
                 if (nsname && (nsname.indexOf('.') === -1)) {
                     jsnamespace[nsname] = eval(nsname);
@@ -304,33 +304,31 @@ Bleroy.AjaxDoc.getReflectionXml = function Bleroy$AjaxDoc$getReflectionXml(proje
             jsnamespace = eval(namespaceName);
         }
         doc.push("\n\n\t\t" +
-            "<api id=\"N:J#" + namespaceName +"\">\n\t\t\t" +
+            "<api id=\"N:J#" + namespaceName + "\">\n\t\t\t" +
                 "<apidata group=\"namespace\" name=\"" +
-                (Bleroy.AjaxDoc._extractShortName(namespaceName) || "Global") +"\"/>\n\t\t\t" +
+                (namespaceName || "Global") + "\"/>\n\t\t\t" +
                 "<elements>");
-        
+
         for (className in jsnamespace) {
             if (className.charAt(0) === '_') continue;
-            
+
             classPath = namespaceName ? namespaceName + "." + className : className;
             type = jsnamespace[className];
             var isNamespace = Type.isNamespace(type),
                 isSingleton = !!singletons[classPath];
-            
+
             if (isSingleton) {
                 type = type.constructor;
             }
-            if ((type !== null) && 
-                (isSingleton || Type.isClass(type) || Type.isInterface(type) || Type.isEnum(type) || isNamespace)) {
-                
+            if ((type !== null) && !isNamespace &&
+                (isSingleton || Type.isClass(type) || Type.isInterface(type) || Type.isEnum(type))) {
+
                 doc.push(
                     "\n\t\t\t\t<element api=\"" +
-                        (isNamespace ? "N:J#" : "T:J#") + 
+                        (isNamespace ? "N:J#" : "T:J#") +
                         classPath +
                         "\"/>");
-                if (!isNamespace) {
-                    Bleroy.AjaxDoc._appendReflectionDoc(projectName, type, type.prototype, classPath, genealogy, innerDoc);
-                }
+                Bleroy.AjaxDoc._appendReflectionDoc(projectName, type, type.prototype, classPath, genealogy, innerDoc);
             }
         }
         doc.push("\n\t\t\t</elements>\n\t\t</api>");
@@ -463,110 +461,113 @@ Bleroy.AjaxDoc._appendReflectionDoc =
     doc.push(innerDoc.join(""));
 }
 
-Bleroy.AjaxDoc._appendMembersReflectionDoc = 
+Bleroy.AjaxDoc._appendMembersReflectionDoc =
     function Bleroy$AjaxDoc$_appendMembersReflectionDoc(
         projectName, object, fields, classPath, doc, elementDoc, excludeFunctionPrototypeMembers, isStatic) {
-    /// <summary>Appends the Reflection documentation for the members of an object.</summary>
-    /// <param name="projectName" type="String">The name of the library currently being documented.</param>
-    /// <param name="object">The object to extract documentation from.</param>
-    /// <param name="fields" type="Object" mayBeNull="true">The field descriptions for the object's type.</param>
-    /// <param name="classPath" type="String">The fully-qualified name of the type.</param>
-    /// <param name="doc" type="Array" elementType="String">The array to append the new doc strings to.</param>
-    /// <param name="elementDoc" type="Array" elementType="String">The array to append the new element doc strings to.</param>
-    /// <param name="excludeFunctionPrototypeMembers" type="Boolean">
-    ///   True if functions that exist on the object's prototype must be excluded.
-    /// </param>
-    /// <param name="isStatic" type="Boolean">True if the member is static.</param>
-    for (var memberName in object) {
-        if (memberName.charAt(0) === '_') continue;
-        if (excludeFunctionPrototypeMembers && Function.prototype[memberName]) continue;
-        var member = object[memberName];
-        if (memberName.startsWith("set_") || memberName.startsWith("remove_") || memberName.startsWith("_")) {
-            continue;
-        }
-        var mType,
+        /// <summary>Appends the Reflection documentation for the members of an object.</summary>
+        /// <param name="projectName" type="String">The name of the library currently being documented.</param>
+        /// <param name="object">The object to extract documentation from.</param>
+        /// <param name="fields" type="Object" mayBeNull="true">The field descriptions for the object's type.</param>
+        /// <param name="classPath" type="String">The fully-qualified name of the type.</param>
+        /// <param name="doc" type="Array" elementType="String">The array to append the new doc strings to.</param>
+        /// <param name="elementDoc" type="Array" elementType="String">The array to append the new element doc strings to.</param>
+        /// <param name="excludeFunctionPrototypeMembers" type="Boolean">
+        ///   True if functions that exist on the object's prototype must be excluded.
+        /// </param>
+        /// <param name="isStatic" type="Boolean">True if the member is static.</param>
+        for (var memberName in object) {
+            if (memberName.charAt(0) === '_') continue;
+            if (excludeFunctionPrototypeMembers && Function.prototype[memberName]) continue;
+            var member = object[memberName];
+            if (memberName.startsWith("set_") || memberName.startsWith("remove_") || memberName.startsWith("_")) {
+                continue;
+            }
+            var mType,
             mSubGroup,
             memberCode = "",
             memberDoc = "";
-        if (memberName.startsWith("get_")) {
-            memberName = memberName.substr(4);
-            mType = "P";
-            mSubGroup = "property";
-            memberCode = member.toString();
-            memberDoc = Bleroy.AjaxDoc._extractDoc(memberCode);
-        }
-        else if (memberName.startsWith("add_")) {
-            memberName = memberName.substr(4);
-            mType = "E";
-            mSubGroup = "event";
-            memberCode = member.toString();
-            memberDoc = Bleroy.AjaxDoc._extractDoc(memberCode);
-        }
-        else if (member instanceof Function) {
-            mType = "M";
-            mSubGroup = "method";
-            memberCode = member.toString();
-            memberDoc = Bleroy.AjaxDoc._extractDoc(memberCode);
-        }
-        else {
-            mType = "F";
-            mSubGroup = "field";
-            if (fields) {
-                memberDoc = fields[memberName];
+            if (memberName.startsWith("get_")) {
+                memberName = memberName.substr(4);
+                mType = "P";
+                mSubGroup = "property";
+                memberCode = member.toString();
+                memberDoc = Bleroy.AjaxDoc._extractDoc(memberCode);
             }
-            else continue;
-        }
-        
-        var memberFullName = classPath + "." + memberName;
-        var memberPath = mType + ":J#" + memberFullName,
+            else if (memberName.startsWith("add_")) {
+                memberName = memberName.substr(4);
+                mType = "E";
+                mSubGroup = "event";
+                memberCode = member.toString();
+                memberDoc = Bleroy.AjaxDoc._extractDoc(memberCode);
+            }
+            else if (member instanceof Function) {
+                mType = "M";
+                mSubGroup = "method";
+                memberCode = member.toString();
+                memberDoc = Bleroy.AjaxDoc._extractDoc(memberCode);
+            }
+            else {
+                mType = "F";
+                mSubGroup = "field";
+                if (fields) {
+                    memberDoc = fields[memberName];
+                }
+                else continue;
+            }
+
+            var memberFullName = classPath + "." + memberName;
+            var memberPath = mType + ":J#" + memberFullName,
             xmlDoc,
             returnsNode;
-        elementDoc.push("\n\t\t\t\t<element api=\"" + memberPath + "\"/>");
-        doc.push("\n\t\t<api id=\"" + memberPath + 
+            elementDoc.push("\n\t\t\t\t<element api=\"" + memberPath + "\"/>");
+            doc.push("\n\t\t<api id=\"" + memberPath +
             "\">\n\t\t\t<apidata group=\"member\" subgroup=\"" + mSubGroup +
             "\" name=\"" + memberName + "\"/>\n\t\t\t<memberdata visibility=\"public\"" + (isStatic ? " static=\"true\"" : "") + "/>");
-            
-        switch (mType) {
-            case "P":
-                doc.push("\n\t\t\t<proceduredata/>\n\t\t\t<propertydata get=\"true\"");
-                if (typeof(object["set_" + memberName]) === "function") {
-                    doc.push(" set=\"true\"");
-                }
-                doc.push("/>");
-                xmlDoc = Bleroy.AjaxDoc._createXmlDocument("<doc>" + memberDoc + "</doc>");
-                returnsNode = xmlDoc.selectSingleNode("/doc/value");
-                if (returnsNode) {
-                    doc.push("\n\t\t\t<returns>");
-                    Bleroy.AjaxDoc._appendTypeReflectionDoc(returnsNode, doc);
-                    doc.push("</returns>");
-                }
-                else {
-                    doc.push("\n\t\t\t<returns><type api=\"T:J#(Any)\"/></returns>");
-                }
-                break;
-            case "E":
-                doc.push("\n\t\t\t<proceduredata/>\n\t\t\t<eventdata add=\"true\"");
-                if (typeof(object["remove_" + memberName]) === "function") {
-                    doc.push(" remove=\"true\"");
-                }
-                doc.push("/>\n\t\t\t<eventhandler><type api=\"T:J#Function\"/></eventhandler>");
-                break;
-            case "M":
-                Bleroy.AjaxDoc._appendMethodParameterReflectionDoc(memberDoc, doc);
-                break;
-            case "F":
-                if (memberDoc) {
-                    xmlDoc = Bleroy.AjaxDoc._createXmlDocument(memberDoc);
-                    doc.push("\n\t\t\t<fielddata/>\n\t\t\t<returns>");
-                    Bleroy.AjaxDoc._appendTypeReflectionDoc(xmlDoc.documentElement, doc);
-                    doc.push("</returns>");
-                }
-                break;
+
+            switch (mType) {
+                case "P":
+                    doc.push("\n\t\t\t<proceduredata/>\n\t\t\t<propertydata get=\"true\"");
+                    if (typeof (object["set_" + memberName]) === "function") {
+                        doc.push(" set=\"true\"");
+                    }
+                    doc.push("/>");
+                    xmlDoc = Bleroy.AjaxDoc._createXmlDocument("<doc>" + memberDoc + "</doc>");
+                    returnsNode = xmlDoc.selectSingleNode("/doc/value");
+                    if (returnsNode) {
+                        doc.push("\n\t\t\t<returns>");
+                        Bleroy.AjaxDoc._appendTypeReflectionDoc(returnsNode, doc);
+                        doc.push("</returns>");
+                    }
+                    else {
+                        doc.push("\n\t\t\t<returns><type api=\"T:J#(Any)\"/></returns>");
+                    }
+                    break;
+                case "E":
+                    doc.push("\n\t\t\t<proceduredata/>\n\t\t\t<eventdata add=\"true\"");
+                    if (typeof (object["remove_" + memberName]) === "function") {
+                        doc.push(" remove=\"true\"");
+                    }
+                    doc.push("/>\n\t\t\t<eventhandler><type api=\"T:J#Function\"/></eventhandler>");
+                    break;
+                case "M":
+                    Bleroy.AjaxDoc._appendMethodParameterReflectionDoc(memberDoc, doc);
+                    break;
+                case "F":
+                    if (memberDoc) {
+                        xmlDoc = Bleroy.AjaxDoc._createXmlDocument(memberDoc);
+                        doc.push("\n\t\t\t<fielddata/>\n\t\t\t<returns>");
+                        Bleroy.AjaxDoc._appendTypeReflectionDoc(xmlDoc.documentElement, doc);
+                        doc.push("</returns>");
+                    }
+                    else {
+                        doc.push("\n\t\t\t<fielddata/>\n\t\t\t<returns><type api=\"T:J#(Any)\"/></returns>");
+                    }
+                    break;
+            }
+            Bleroy.AjaxDoc._appendContainers(projectName, memberFullName, doc);
+            doc.push("\n\t\t</api>");
         }
-        Bleroy.AjaxDoc._appendContainers(projectName, memberFullName, doc);
-        doc.push("\n\t\t</api>");
     }
-}
 
 Bleroy.AjaxDoc._appendMethodParameterReflectionDoc =
     function Bleroy$AjaxDoc$_appendMethodParameterReflectionDoc(methodDoc, doc) {
