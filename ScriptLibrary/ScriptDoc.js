@@ -106,7 +106,7 @@ Bleroy.AjaxDoc._appendDoc = function Bleroy$AjaxDoc$_appendDoc(type, object, cla
 
     var inherits = (baseType != Object) ? " inheritsFrom=\"" + baseType.getName() + "\"" : "";
     var summaryNode = xmlDoc.selectSingleNode("/doc/summary");
-    var summary = summaryNode ? summaryNode.innerText : null;
+    var summary = summaryNode ? summaryNode.xml : null;
         
     doc.push("\n\n\t\t<member name=\"T:J#" + classPath + "\"" + inherits +
         (summary ? ">\n\t\t\t" + summary + "\n\t\t</member>" : "/>"));
@@ -120,7 +120,7 @@ Bleroy.AjaxDoc._appendDoc = function Bleroy$AjaxDoc$_appendDoc(type, object, cla
             for (var i = 0, l = fieldNodes.length; i < l; i++) {
                 var fieldNode = fieldNodes[i];
                 var fieldName = fieldNode.getAttribute("name"),
-                    fieldDesc = fieldNode.innerText;
+                    fieldDesc = fieldNode.text;
                 if (typeof(object[fieldName]) === "undefined") {
                     fields[fieldName] = fieldDesc;
                     Bleroy.AjaxDoc._appendMemberDoc("F", fieldDesc, classPath + "." + fieldName, doc);
